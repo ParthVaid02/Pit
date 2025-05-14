@@ -1,7 +1,6 @@
 import path from 'path'
 import fs from 'fs/promises'
 import crypto from 'crypto'
-import { json } from 'stream/consumers';
 
 class Pit{
     constructor(repoPath = '.'){
@@ -53,8 +52,48 @@ class Pit{
 
         await fs.writeFile(this.indexPath, JSON.stringify(index))
     }
+
+    async commit(message){
+        const index = JSON.parse(await fs.readFile(this.indexPath, { encoding:'utf-8' }))
+
+        const parentCommit = await this.getCurrentHead();
+
+        const commitData = {
+            parent: parentCommit,
+            files: index,
+            timeStamp: new Date().toISOString(),
+            message
+        }
+
+        const commitHash = this.hashobject(JSON.stringify(commitData))
+
+        const commitHashFolderPathName = commitHash.slice(0,2)
+        const commitHashFolderPath = path.join(this.objectsPath, commitHashFolderPathName)
+
+        await fs.mkdir(commitHashFolderPath)
+
+        const commitHashObjectPathName = commitHash.slice(2)
+        const commitHashObjectPath = path.join(commitHashFolderPath, commitHashObjectPathName)
+
+        await fs.writeFile(commitHashObjectPath, JSON.stringify(commitData))
+        await fs.writeFile(this.headPath, commitHash)
+        await fs.writeFile(this.indexPath, JSON.stringify([]))
+
+        console.log(`Successfully created commit: ${commitHash}`)
+    }
+
+    async getCurrentHead(){
+        try {
+            return await fs.readFile(this.headPath, { encoding: 'utf-8' })
+        } catch (error) {
+            return null
+        }
+    }
 }
 
-const pit = new Pit()
-pit.add('sample.txt')
+(async ()=>{
+    const pit = new Pit()
+    await pit.add('sample.txt')
+    await pit.commit('first commit')
+})();
 // pit.add('sample2.txt')
