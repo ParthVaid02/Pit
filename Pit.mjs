@@ -89,11 +89,28 @@ class Pit{
             return null
         }
     }
+
+    async log(){
+        let currentCommitHash = await this.getCurrentHead()
+
+        while(currentCommitHash){
+            const currentCommitHashFolderPathName = currentCommitHash.slice(0,2)
+            const currentCommitHashFilePathName = currentCommitHash.slice(2)
+
+            const commitData = JSON.parse(await fs.readFile(path.join(this.objectsPath, currentCommitHashFolderPathName, currentCommitHashFilePathName), { encoding:'utf-8' }))
+
+            console.log('-----------------------------------------------------------------------------\n')
+            console.log(`Commit: ${currentCommitHash}\nDate: ${commitData.timeStamp}\n${commitData.message}\n`)
+
+            currentCommitHash = commitData.parent
+        }
+    }
 }
 
 (async ()=>{
     const pit = new Pit()
     await pit.add('sample.txt')
     await pit.commit('first commit')
+    await pit.log()
 })();
 // pit.add('sample2.txt')
