@@ -1,5 +1,7 @@
 import path from 'path'
 import fs from 'fs/promises'
+import crypto from 'crypto'
+import { json } from 'stream/consumers';
 
 class Pit{
     constructor(repoPath = '.'){
@@ -21,7 +23,38 @@ class Pit{
         }
     }
 
-    
+    hashobject(content){
+        return crypto.createHash('sha1').update(content, 'utf-8').digest('hex')
+    }
+
+    async add(file){
+        const fileData = await fs.readFile(file, {encoding: 'utf-8'})
+        const fileHash = this.hashobject(fileData)
+        // console.log(fileHash)
+
+        const newFolderHashedObjectPathName = fileHash.slice(0,2)
+        const newFolderHashedObjectPath = path.join(this.objectsPath, newFolderHashedObjectPathName)
+
+        await fs.mkdir(newFolderHashedObjectPath)
+
+        const newFileHashedObjectPathName = fileHash.slice(2)
+        const newFileHashedObjectPath = path.join(newFolderHashedObjectPath, newFileHashedObjectPathName)
+
+        await fs.writeFile(newFileHashedObjectPath, fileData)
+        await this.updateStagingArea(file, fileHash)
+
+        console.log(`Added ${file}`)
+    }
+
+    async updateStagingArea(filePath, fileHash){
+        const index = JSON.parse(await fs.readFile(this.indexPath, { encoding:'utf-8' }))
+        
+        index.push({ path:filePath, hash:fileHash })
+
+        await fs.writeFile(this.indexPath, JSON.stringify(index))
+    }
 }
 
 const pit = new Pit()
+pit.add('sample.txt')
+// pit.add('sample2.txt')
