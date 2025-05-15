@@ -1,6 +1,8 @@
 import path from 'path'
 import fs from 'fs/promises'
 import crypto from 'crypto'
+import { diffLines } from 'diff';
+import chalk from 'chalk';
 
 class Pit{
     constructor(repoPath = '.'){
@@ -8,7 +10,6 @@ class Pit{
         this.objectsPath = path.join(this.repoPath, 'objects');
         this.headPath = path.join(this.repoPath, 'HEAD');
         this.indexPath = path.join(this.repoPath, 'index')
-        this.init()
     }
 
     async init(){
@@ -90,14 +91,20 @@ class Pit{
         }
     }
 
+    getObjectPath(hash){
+        const hashFolderPathName = hash.slice(0,2)
+        const hashFilePathName = hash.slice(2)
+
+        return path.join(this.objectsPath, hashFolderPathName, hashFilePathName)
+    }
+
     async log(){
         let currentCommitHash = await this.getCurrentHead()
 
         while(currentCommitHash){
-            const currentCommitHashFolderPathName = currentCommitHash.slice(0,2)
-            const currentCommitHashFilePathName = currentCommitHash.slice(2)
+            const commitPath = this.getObjectPath(currentCommitHash)
 
-            const commitData = JSON.parse(await fs.readFile(path.join(this.objectsPath, currentCommitHashFolderPathName, currentCommitHashFilePathName), { encoding:'utf-8' }))
+            const commitData = JSON.parse(await fs.readFile(commitPath, { encoding:'utf-8' }))
 
             console.log('-----------------------------------------------------------------------------\n')
             console.log(`Commit: ${currentCommitHash}\nDate: ${commitData.timeStamp}\n${commitData.message}\n`)
@@ -105,12 +112,85 @@ class Pit{
             currentCommitHash = commitData.parent
         }
     }
+    
+    async diff(commitHash){
+        const commitData = JSON.parse(await this.getCommitData(commitHash))
+        if(!commitData){
+            console.log('Commit not found')
+            return
+        }
+
+        console.log("Changes in the last commit are: ")
+
+        for (const file of commitData.files) {
+            console.log(`\nFile: ${file.path}`)
+            const fileContent = await this.getFileData(file.hash)
+            // console.log(fileContent)
+
+            if(commitData.parent){
+                const parentCommitData = JSON.parse(await this.getCommitData(commitData.parent))
+                const parentFileContent = await this.getParentFileContent(parentCommitData, file.path)
+                if(parentFileContent){
+                    console.log('\nDiff: ')
+
+                    const diff = diffLines(parentFileContent, fileContent)
+
+                    diff.forEach(part => {
+                        if(part.added){
+                            process.stdout.write(chalk.green('+++' + part.value))
+                        }
+                        else if(part.removed){
+                            process.stdout.write(chalk.red("---" + part.value))
+                        }
+                        else{
+                            process.stdout.write(chalk.gray(part.value))
+                        }
+                        console.log()
+                    })
+                }
+                else{
+                    console.log('New file in this commit')
+                }
+            }
+            else{
+                console.log('First Commit')
+            }
+            console.log('-----------------------------------------------------------------------------')
+        }
+    }
+
+    async getParentFileContent(parentCommitData, filePath){
+        const parentFile = parentCommitData.files.find(file => file.path === filePath)
+
+        if(parentFile){
+            return await this.getFileData(parentFile.hash)
+        }
+    }
+
+    async getCommitData(commitHash){
+        const commitPath = this.getObjectPath(commitHash)
+
+        try {
+            return await fs.readFile(commitPath, { encoding:'utf8' })
+        } catch (error) {
+            return null
+        }
+    }
+
+    async getFileData(fileHash){
+        const objectPath = this.getObjectPath(fileHash)
+
+        return await fs.readFile(objectPath, { encoding:'utf-8' })
+    }
 }
 
 (async ()=>{
     const pit = new Pit()
-    await pit.add('sample.txt')
-    await pit.commit('first commit')
-    await pit.log()
+    // await pit.add('sample.txt')
+    // await pit.add('sample2.txt')
+    // await pit.commit('fifth commit')
+    // await pit.log()
+
+    await pit.diff('9b1d67c3df700e93f8976125f9d41d2668944906')
 })();
 // pit.add('sample2.txt')
