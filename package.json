@@ -2,16 +2,20 @@
   "name": "pit",
   "version": "1.0.0",
   "description": "",
-  "main": "pit.js",
+  "main": "Pit.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "chalk": "^5.4.1",
+    "commander": "^13.1.0",
     "diff": "^8.0.1"
+  },
+  "bin": {
+    "pit": "./Pit.mjs"
   }
 }

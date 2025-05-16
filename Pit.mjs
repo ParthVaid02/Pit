@@ -1,8 +1,13 @@
+#!/usr/bin/env node
+
 import path from 'path'
 import fs from 'fs/promises'
 import crypto from 'crypto'
 import { diffLines } from 'diff';
 import chalk from 'chalk';
+import { Command } from 'commander';
+
+const program = new Command()
 
 class Pit{
     constructor(repoPath = '.'){
@@ -184,13 +189,29 @@ class Pit{
     }
 }
 
-(async ()=>{
-    const pit = new Pit()
-    // await pit.add('sample.txt')
-    // await pit.add('sample2.txt')
-    // await pit.commit('fifth commit')
-    // await pit.log()
+program.command('init').action(async () => { 
+    const pit =  new Pit(); 
+    await pit.init();
+});
 
-    await pit.diff('9b1d67c3df700e93f8976125f9d41d2668944906')
-})();
-// pit.add('sample2.txt')
+program.command('add <file>').action(async (file) => { 
+    const pit =  new Pit(); 
+    await pit.add(file); 
+});
+
+program.command('commit <message>').action(async (message) => { 
+    const pit = new Pit(); 
+    await pit.commit(message); 
+});
+
+program.command('log').action(async () => { 
+    const pit = new Pit(); 
+    await pit.log(); 
+});
+
+program.command('diff <commitHash>').action(async (commitHash) => { 
+    const pit = new Pit(); 
+    await pit.diff(commitHash);
+});
+
+program.parse(process.argv);
