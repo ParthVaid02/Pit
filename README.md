@@ -19,7 +19,7 @@ PIT is a minimal version control system inspired by Git, written in Node.js. It 
 
 1. **Clone the repository:**
    ```sh
-   git clone <your-repo-url>
+   git clone https://github.com/ParthVaid02/Pit.git
    cd PIT
    ```
 
