@@ -1,10 +1,10 @@
-# PIT - A Simple Version Control System
+# TIT - A Simple Version Control System
 
-PIT is a minimal version control system inspired by Git, written in Node.js. It allows you to initialize a repository, add files, commit changes, view commit logs, and see diffs between commits.
+TIT is a minimal version control system inspired by Git, written in Node.js. It allows you to initialize a repository, add files, commit changes, view commit logs, and see diffs between commits.
 
 ## Features
 
-- Initialize a PIT repository
+- Initialize a TIT repository
 - Add files to the staging area
 - Commit changes with messages
 - View commit history
@@ -18,12 +18,14 @@ PIT is a minimal version control system inspired by Git, written in Node.js. It 
 ## Installation
 
 1. **Clone the repository:**
+
    ```sh
    git clone https://github.com/ParthVaid02/Pit.git
-   cd PIT
+   cd TIT
    ```
 
 2. **Install dependencies:**
+
    ```sh
    npm install
    ```
@@ -32,54 +34,54 @@ PIT is a minimal version control system inspired by Git, written in Node.js. It 
    ```sh
    sudo npm link
    ```
-   This will make the `pit` command available anywhere on your system.
+   This will make the `tit` command available anywhere on your system.
 
 ## Usage
 
 Navigate to any project directory and use the following commands:
 
-### Initialize a PIT repository
+### Initialize a TIT repository
 
 ```sh
-pit init
+tit init
 ```
 
 ### Add a file to the staging area
 
 ```sh
-pit add <filename>
+tit add <filename>
 ```
 
 ### Commit staged changes
 
 ```sh
-pit commit "your commit message"
+tit commit "your commit message"
 ```
 
 ### View commit history
 
 ```sh
-pit log
+tit log
 ```
 
 ### Show diff for a specific commit
 
 ```sh
-pit diff <commitHash>
+tit diff <commitHash>
 ```
 
 ## Uninstall
 
-To remove the global `pit` command:
+To remove the global `tit` command:
 
 ```sh
-sudo npm unlink -g pit
+sudo npm unlink -g tit
 ```
 
 ## Notes
 
-- All PIT data is stored in a `.pit` directory in your project root.
-- Make sure to run `pit` commands from the root of your project.
+- All TIT data is stored in a `.tit` directory in your project root.
+- Make sure to run `tit` commands from the root of your project.
 
 ---
 

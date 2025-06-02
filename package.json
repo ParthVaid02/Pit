@@ -1,8 +1,8 @@
 {
-  "name": "pit",
+  "name": "tit",
   "version": "1.0.0",
   "description": "",
-  "main": "Pit.mjs",
+  "main": "Tit.mjs",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -16,6 +16,6 @@
     "diff": "^8.0.1"
   },
   "bin": {
-    "pit": "./Pit.mjs"
+    "tit": "./Tit.mjs"
   }
 }
